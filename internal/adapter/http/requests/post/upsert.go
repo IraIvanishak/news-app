@@ -10,12 +10,15 @@ type UpsertPostRequest struct {
 	Content string `json:"content" form:"content" validate:"required,min=10"`
 }
 
-func (r *UpsertPostRequest) Validate(ctx *fiber.Ctx) error {
-	validate := validator.New()
-
-	if err := ctx.BodyParser(r); err != nil {
-		return err
+func NewUpsertPostRequest(ctx *fiber.Ctx) *UpsertPostRequest {
+	var req UpsertPostRequest
+	if err := ctx.BodyParser(&req); err != nil {
+		return nil
 	}
+	return &req
+}
 
+func (r *UpsertPostRequest) Validate() error {
+	validate := validator.New()
 	return validate.Struct(r)
 }

@@ -108,10 +108,9 @@ func (h *PostHandler) RenderEditForm(c *fiber.Ctx) error {
 }
 
 func (h *PostHandler) Store(c *fiber.Ctx) error {
-	var req post.UpsertPostRequest
-
-	if err := req.Validate(c); err != nil {
-		return c.Status(fiber.StatusUnprocessableEntity).Render("posts/create", fiber.Map{
+	req := post.NewUpsertPostRequest(c)
+	if err := req.Validate(); err != nil {
+		return c.Status(fiber.StatusUnprocessableEntity).Render("error", fiber.Map{
 			"Error": err.Error(),
 		})
 	}
@@ -125,7 +124,7 @@ func (h *PostHandler) Store(c *fiber.Ctx) error {
 	}
 
 	if err := h.service.Store(c.Context(), postModel); err != nil {
-		return c.Status(fiber.StatusInternalServerError).Render("posts/create", fiber.Map{
+		return c.Status(fiber.StatusInternalServerError).Render("error", fiber.Map{
 			"Error": "Failed to create post",
 		})
 	}
@@ -142,8 +141,8 @@ func (h *PostHandler) Update(c *fiber.Ctx) error {
 		})
 	}
 
-	var req post.UpsertPostRequest
-	if err := req.Validate(c); err != nil {
+	req := post.NewUpsertPostRequest(c)
+	if err := req.Validate(); err != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).Render("posts/edit", fiber.Map{
 			"ID":    idStr,
 			"Error": err.Error(),
