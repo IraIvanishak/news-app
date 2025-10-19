@@ -44,10 +44,7 @@ func (h *PostHandler) RenderItem(c *fiber.Ctx) error {
 }
 
 func (h *PostHandler) RenderList(c *fiber.Ctx) error {
-	filter := domain.ListFilter{
-		Limit:  int64(c.QueryInt("limit", 10)),
-		Offset: int64(c.QueryInt("offset", 0)),
-	}
+	filter := domain.NewListFilter(c.QueryInt("limit", 10), c.QueryInt("offset", 0))
 
 	posts, err := h.service.List(c.Context(), filter)
 	if err != nil {
@@ -63,19 +60,15 @@ func (h *PostHandler) RenderList(c *fiber.Ctx) error {
 		})
 	}
 
-	nextOffset := filter.Offset + filter.Limit
-	prevOffset := filter.Offset - filter.Limit
-	hasMore := nextOffset < totalCount
-
-	return c.Render("posts/list", fiber.Map{
-		"Posts":       posts,
-		"HasPrevious": filter.Offset > 0,
-		"HasNext":     hasMore,
-		"NextOffset":  nextOffset,
-		"PrevOffset":  prevOffset,
-		"Limit":       filter.Limit,
-		"TotalCount":  totalCount,
-	})
+	pagination := domain.NewPagination(filter, totalCount)
+	renderData := struct {
+		Posts []*domain.Post
+		domain.Pagination
+	}{
+		Posts:      posts,
+		Pagination: pagination,
+	}
+	return c.Render("posts/list", renderData)
 }
 
 func (h *PostHandler) RenderCreateForm(c *fiber.Ctx) error {
@@ -95,8 +88,13 @@ func (h *PostHandler) RenderEditForm(c *fiber.Ctx) error {
 
 	post, err := h.service.Find(c.Context(), objectID)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).Render("error", fiber.Map{
-			"Error": "Post not found",
+		if errors.Is(err, data_errors.ErrPostNotFound) {
+			return c.Status(fiber.StatusNotFound).Render("error", fiber.Map{
+				"Error": "Post not found",
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).Render("error", fiber.Map{
+			"Error": "Failed to retrieve post",
 		})
 	}
 
@@ -143,8 +141,7 @@ func (h *PostHandler) Update(c *fiber.Ctx) error {
 
 	req := post.NewUpsertPostRequest(c)
 	if err := req.Validate(); err != nil {
-		return c.Status(fiber.StatusUnprocessableEntity).Render("posts/edit", fiber.Map{
-			"ID":    idStr,
+		return c.Status(fiber.StatusUnprocessableEntity).Render("error", fiber.Map{
 			"Error": err.Error(),
 		})
 	}
@@ -162,8 +159,7 @@ func (h *PostHandler) Update(c *fiber.Ctx) error {
 				"Error": "Post not found",
 			})
 		}
-		return c.Status(fiber.StatusInternalServerError).Render("posts/edit", fiber.Map{
-			"ID":    idStr,
+		return c.Status(fiber.StatusInternalServerError).Render("error", fiber.Map{
 			"Error": "Failed to update post",
 		})
 	}
