@@ -1,4 +1,4 @@
-<div class="max-w-2xl mx-auto bg-white shadow-md rounded-lg p-6">
+<div class="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6">
     <div class="mb-6">
         <h1 class="text-3xl font-bold text-gray-800 mb-2">{{.Title}}</h1>
         <div class="text-gray-500 text-sm">
@@ -15,29 +15,29 @@
 
     <div class="flex justify-between items-center">
         <div class="space-x-2">
-            <button 
-                hx-get="/posts/{{.ID.Hex}}/edit"
-                hx-target="#content"
-                class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-            >
-                Edit
-            </button>
-            <button 
-                hx-delete="/posts/{{.ID.Hex}}"
-                hx-confirm="Are you sure you want to delete this post?"
-                hx-target="#content"
-                hx-swap="innerHTML"
-                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-            >
-                Delete
-            </button>
+             <button 
+                 hx-get="/posts/{{.ID.Hex}}/edit"
+                 hx-target="#content"
+                 class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition-colors"
+             >
+                 Edit
+             </button>
+             <button 
+                 hx-delete="/posts/{{.ID.Hex}}"
+                 hx-confirm="Are you sure you want to delete this post?"
+                 hx-target="#content"
+                 hx-swap="innerHTML"
+                 class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
+             >
+                 Delete
+             </button>
         </div>
-        <button 
-            hx-get="/posts"
-            hx-target="#content"
-            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-            Back to List
-        </button>
+         <button 
+             hx-get="/posts"
+             hx-target="#content"
+             class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+         >
+             Back to List
+         </button>
     </div>
 </div>
