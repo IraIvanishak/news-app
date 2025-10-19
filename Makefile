@@ -6,7 +6,7 @@ COMPOSE_FILE := docker-compose.yml
 COMPOSE_OVERRIDE := docker-compose.override.yml
 
 # Docker Compose Commands
-.PHONY: up down rebuild logs test clean
+.PHONY: up down rebuild logs test 
 
 # Start the application in production mode
 up:

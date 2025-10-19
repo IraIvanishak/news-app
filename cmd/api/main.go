@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/IraIvanishak/news-app/internal/adapter/http/handlers"
+	"github.com/IraIvanishak/news-app/internal/adapter/http/middlewares"
 	"github.com/IraIvanishak/news-app/internal/adapter/http/routes"
 	"github.com/IraIvanishak/news-app/internal/adapter/repositories"
 	"github.com/IraIvanishak/news-app/internal/core/ports"
@@ -38,7 +39,7 @@ func NewLogger() *zap.Logger {
 	case "error":
 		logLevel = zap.ErrorLevel
 	default:
-		logLevel = zap.InfoLevel
+		logLevel = zap.DebugLevel
 	}
 
 	// Create logger with development config for better error handling
@@ -46,7 +47,6 @@ func NewLogger() *zap.Logger {
 	config.Level = zap.NewAtomicLevelAt(logLevel)
 	config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 
-	// Create logger
 	logger, err := config.Build()
 	if err != nil {
 		panic(fmt.Sprintf("Failed to create logger: %v", err))
@@ -55,9 +55,7 @@ func NewLogger() *zap.Logger {
 	return logger
 }
 
-// NewMongoClient creates a new MongoDB client
 func NewMongoClient(logger *zap.Logger) (*mongo.Client, error) {
-	// Get MongoDB connection details from environment
 	mongoURI := viper.GetString("MONGO_URI")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -82,7 +80,6 @@ func NewMongoClient(logger *zap.Logger) (*mongo.Client, error) {
 	return client, nil
 }
 
-// NewFiberApp creates a new Fiber application with templating
 func NewFiberApp() *fiber.App {
 	// Create template engine
 	engine := html.New("./web/templates", ".html")
@@ -110,15 +107,14 @@ func StartServer(
 	app *fiber.App,
 	logger *zap.Logger,
 ) {
-	// Get server port from environment
-	serverPort := viper.GetString("SERVER_PORT")
+	serverPort := viper.GetString("LISTEN_PORT")
 
 	lifecycle.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
 				go func() {
 					logger.Info("Starting server", zap.String("port", serverPort))
-					if err := app.Listen(serverPort); err != nil && err != http.ErrServerClosed {
+					if err := app.Listen(":" + serverPort); err != nil && err != http.ErrServerClosed {
 						logger.Fatal("Server startup failed", zap.Error(err))
 					}
 				}()
@@ -133,31 +129,16 @@ func StartServer(
 }
 
 func main() {
-	// Initialize Viper
-	viper.SetDefault("LOG_LEVEL", "info")
-	viper.SetDefault("SERVER_PORT", ":8080")
-	viper.SetDefault("MONGO_URI", "mongodb://localhost:27017")
-	viper.AutomaticEnv()
-
-	// Create Fx application
 	app := fx.New(
+		// env
+		fx.Invoke(viper.AutomaticEnv),
 		// Logging
 		fx.Provide(NewLogger),
-
-		// Configuration and Environment
-		fx.Invoke(func(logger *zap.Logger) {
-			// Log environment details
-			logger.Info("Application starting",
-				zap.String("mongo_uri", viper.GetString("MONGO_URI")),
-				zap.String("server_port", viper.GetString("SERVER_PORT")),
-				zap.String("log_level", viper.GetString("LOG_LEVEL")),
-			)
-		}),
 
 		// Database
 		fx.Provide(NewMongoClient),
 		fx.Provide(func(client *mongo.Client) *mongo.Database {
-			return client.Database("newsapp")
+			return client.Database(viper.GetString("MONGO_DATABASE"))
 		}),
 
 		fx.Provide(
@@ -166,6 +147,11 @@ func main() {
 			fx.Annotate(handlers.NewPostHandler, fx.As(new(ports.PostHandlers))),
 		),
 		fx.Invoke(routes.PostRoutes),
+
+		fx.Invoke(func(app *fiber.App) {
+			middlewares.RoutLoggerMiddlewareInitializer(app)
+			middlewares.RecoverMiddlewareInitializer(app)
+		}),
 
 		// Web Server
 		fx.Provide(NewFiberApp),

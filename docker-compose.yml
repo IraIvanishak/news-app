@@ -18,16 +18,13 @@ services:
       - ${PUBLIC_PORT}:${LISTEN_PORT}
     expose:
       - ${PUBLIC_PORT}
-    volumes:
-      - ./.env:/go/src/app/.env
+    env_file:
+      - .env
     pid: "host"
     depends_on:
       - news_app_database
     networks:
       - news_app_network
-    environment:
-      - MONGO_URI=mongodb://news_app_database:27017
-      - MONGO_DATABASE=newsapp
 
   news_app_database:
     image: mongo:latest
