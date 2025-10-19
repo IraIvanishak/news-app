@@ -1,0 +1,10 @@
+
+services:
+  news_app_api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: dev
+    command: air
+    volumes:
+      - .:/go/src/app

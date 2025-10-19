@@ -1,0 +1,45 @@
+version: '3.8'
+
+networks:
+  news_app_network:
+    driver: bridge
+
+services:
+  news_app_api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: production
+    image: news_app_api_bin
+    extra_hosts:
+      - "host.docker.internal:172.17.0.1"
+    container_name: news_app_api
+    ports:
+      - ${PUBLIC_PORT}:${LISTEN_PORT}
+    expose:
+      - ${PUBLIC_PORT}
+    volumes:
+      - ./.env:/go/src/app/.env
+    pid: "host"
+    depends_on:
+      - news_app_database
+    networks:
+      - news_app_network
+    environment:
+      - MONGO_URI=mongodb://news_app_database:27017
+      - MONGO_DATABASE=newsapp
+
+  news_app_database:
+    image: mongo:latest
+    container_name: news_app_database
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - news_app_network
+    environment:
+      - MONGO_INITDB_DATABASE=newsapp
+
+volumes:
+  mongodb_data:

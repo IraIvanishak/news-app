@@ -1,0 +1,23 @@
+{{define "title"}}Error{{end}}
+
+{{define "content"}}
+<div class="max-w-md mx-auto bg-white shadow-md rounded-lg p-6">
+    <div class="text-center">
+        <svg class="mx-auto mb-4 w-16 h-16 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <h2 class="text-2xl font-bold text-red-600 mb-4">Oops! An Error Occurred</h2>
+        
+        <p class="text-gray-700 mb-4">
+            {{.Error}}
+        </p>
+        
+        <button 
+            hx-get="/posts" 
+            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+            Back to Posts
+        </button>
+    </div>
+</div>
+{{end}}

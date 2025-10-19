@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>News App</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .truncate {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+        <!-- Posts Container -->
+        <div id="content">
+            <h1 class="text-3xl font-bold mb-4">News Posts</h1>
+            
+            <!-- New Post Button -->
+            <button 
+                hx-get="/posts/create"
+                hx-target="#content"
+                class="bg-blue-500 text-white px-4 py-2 rounded mb-4"
+            >
+                Create New Post
+            </button>
+            <!-- Posts List -->
+            <div id="posts-list">
+                {{range .Posts}}
+                    <div 
+                        id="post-{{.ID.Hex}}" 
+                        class="bg-white shadow-md rounded-lg p-4 mb-4 flex justify-between items-center"
+                    >
+                        <div class="flex-1 min-w-0 mr-4">
+                            <h2 
+                                class="text-xl font-semibold cursor-pointer hover:text-blue-600 transition-colors truncate"
+                                hx-get="/posts/{{.ID.Hex}}"
+                                hx-target="#content"
+                                title="{{.Title}}"
+                            >
+                                {{.Title}}
+                            </h2>
+                            <p class="text-gray-600 text-sm mt-1 line-clamp-2">{{.Content}}</p>
+                            <small class="text-gray-400">
+                                Created: {{.CreatedAt.Format "2006-01-02 15:04"}}
+                            </small>
+                        </div>
+                        <div class="flex flex-col space-y-2">
+                            <button 
+                                hx-get="/posts/{{.ID.Hex}}"
+                                hx-target="#content"
+                                class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm"
+                            >
+                                View
+                            </button>
+                            <button 
+                                hx-get="/posts/{{.ID.Hex}}/edit"
+                                hx-target="#content"
+                                class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm"
+                            >
+                                Edit
+                            </button>
+                            <button 
+                                hx-delete="/posts/{{.ID.Hex}}"
+                                hx-confirm="Are you sure you want to delete this post?"
+                                hx-target="#post-{{.ID.Hex}}"
+                                hx-swap="outerHTML"
+                                hx-on::after-request="if(event.detail.xhr.status !== 200) { alert('Error: ' + event.detail.xhr.responseText); }"
+                                class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                {{end}}
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-between items-center mt-4">
+                {{if .HasPrevious}}
+                    <button 
+                        hx-get="/posts?limit={{.Limit}}&offset={{.PrevOffset}}"
+                        hx-target="#content"
+                        class="bg-blue-500 text-white px-4 py-2 rounded"
+                    >
+                        Previous
+                    </button>
+                {{else}}
+                    <div></div>
+                {{end}}
+
+                {{if .HasNext}}
+                    <button 
+                        hx-get="/posts?limit={{.Limit}}&offset={{.NextOffset}}"
+                        hx-target="#content"
+                        class="bg-blue-500 text-white px-4 py-2 rounded"
+                    >
+                        Next
+                    </button>
+                {{end}}
+
+                <!-- Pagination Info -->
+                <div class="text-gray-600">
+                    Showing {{len .Posts}} of {{.TotalCount}} posts
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
