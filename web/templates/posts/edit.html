@@ -8,7 +8,7 @@
     {{end}}
 
     <form 
-        hx-put="/posts/{{.ID.Hex}}"
+        hx-put="/posts/{{.ID}}"
         hx-target="#content"
         hx-swap="innerHTML"
         class="space-y-4"
@@ -44,7 +44,7 @@
          <div class="flex space-x-4">
              <button 
                  type="submit" 
-                 class="flex-grow bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+                 class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
              >
                  Update Post
              </button>
@@ -52,7 +52,7 @@
                  type="button"
                  hx-get="/posts"
                  hx-target="#content"
-                 class="flex-grow bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
+                 class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
              >
                  Cancel
              </button>

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	data_errors "github.com/IraIvanishak/news-app/internal/adapter/http/errors"
@@ -9,7 +10,6 @@ import (
 	"github.com/IraIvanishak/news-app/internal/core/domain"
 	"github.com/IraIvanishak/news-app/internal/core/ports"
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type PostHandler struct {
@@ -26,14 +26,14 @@ func NewPostHandler(service ports.PostService) *PostHandler {
 
 func (h *PostHandler) RenderItem(c *fiber.Ctx) error {
 	idStr := c.Params("id")
-	objectID, err := primitive.ObjectIDFromHex(idStr)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).Render("error", fiber.Map{
-			"Error": "Invalid post ID format",
-		})
-	}
+	// id, err := domain.IDFromHex(idStr)
+	// if err != nil {
+	// 	return c.Status(fiber.StatusBadRequest).Render("error", fiber.Map{
+	// 		"Error": "Invalid post ID format",
+	// 	})
+	// }
 
-	post, err := h.service.Find(c.Context(), objectID)
+	post, err := h.service.Find(c.Context(), idStr)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).Render("error", fiber.Map{
 			"Error": "Post not found",
@@ -49,14 +49,14 @@ func (h *PostHandler) RenderList(c *fiber.Ctx) error {
 	posts, err := h.service.List(c.Context(), filter)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).Render("error", fiber.Map{
-			"Error": "Failed to retrieve posts",
+			"Error": fmt.Errorf("failed to retrieve posts: %w", err).Error(),
 		})
 	}
 
 	totalCount, err := h.service.Count(c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).Render("error", fiber.Map{
-			"Error": "Failed to retrieve post count",
+			"Error": fmt.Errorf("failed to retrieve post count: %w", err).Error(),
 		})
 	}
 
@@ -79,14 +79,14 @@ func (h *PostHandler) RenderCreateForm(c *fiber.Ctx) error {
 
 func (h *PostHandler) RenderEditForm(c *fiber.Ctx) error {
 	idStr := c.Params("id")
-	objectID, err := primitive.ObjectIDFromHex(idStr)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).Render("error", fiber.Map{
-			"Error": "Invalid post ID format",
-		})
-	}
+	// id, err := domain.IDFromHex(idStr)
+	// if err != nil {
+	// 	return c.Status(fiber.StatusBadRequest).Render("error", fiber.Map{
+	// 		"Error": "Invalid post ID format",
+	// 	})
+	// }
 
-	post, err := h.service.Find(c.Context(), objectID)
+	post, err := h.service.Find(c.Context(), idStr)
 	if err != nil {
 		if errors.Is(err, data_errors.ErrPostNotFound) {
 			return c.Status(fiber.StatusNotFound).Render("error", fiber.Map{
@@ -94,7 +94,7 @@ func (h *PostHandler) RenderEditForm(c *fiber.Ctx) error {
 			})
 		}
 		return c.Status(fiber.StatusInternalServerError).Render("error", fiber.Map{
-			"Error": "Failed to retrieve post",
+			"Error": fmt.Errorf("failed to retrieve post: %w", err).Error(),
 		})
 	}
 
@@ -114,16 +114,13 @@ func (h *PostHandler) Store(c *fiber.Ctx) error {
 	}
 
 	postModel := &domain.Post{
-		ID:        primitive.NewObjectID(),
-		Title:     req.Title,
-		Content:   req.Content,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		Title:   req.Title,
+		Content: req.Content,
 	}
 
 	if err := h.service.Store(c.Context(), postModel); err != nil {
 		return c.Status(fiber.StatusInternalServerError).Render("error", fiber.Map{
-			"Error": "Failed to create post",
+			"Error": fmt.Errorf("failed to create post: %w", err).Error(),
 		})
 	}
 
@@ -132,12 +129,12 @@ func (h *PostHandler) Store(c *fiber.Ctx) error {
 
 func (h *PostHandler) Update(c *fiber.Ctx) error {
 	idStr := c.Params("id")
-	objectID, err := primitive.ObjectIDFromHex(idStr)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).Render("error", fiber.Map{
-			"Error": "Invalid post ID format",
-		})
-	}
+	// id, err := domain.IDFromHex(idStr)
+	// if err != nil {
+	// 	return c.Status(fiber.StatusBadRequest).Render("error", fiber.Map{
+	// 		"Error": "Invalid post ID format",
+	// 	})
+	// }
 
 	req := post.NewUpsertPostRequest(c)
 	if err := req.Validate(); err != nil {
@@ -147,7 +144,7 @@ func (h *PostHandler) Update(c *fiber.Ctx) error {
 	}
 
 	postModel := &domain.Post{
-		ID:        objectID,
+		ID:        idStr,
 		Title:     req.Title,
 		Content:   req.Content,
 		UpdatedAt: time.Now(),
@@ -160,7 +157,7 @@ func (h *PostHandler) Update(c *fiber.Ctx) error {
 			})
 		}
 		return c.Status(fiber.StatusInternalServerError).Render("error", fiber.Map{
-			"Error": "Failed to update post",
+			"Error": fmt.Errorf("failed to update post: %w", err).Error(),
 		})
 	}
 
@@ -169,19 +166,19 @@ func (h *PostHandler) Update(c *fiber.Ctx) error {
 
 func (h *PostHandler) Delete(c *fiber.Ctx) error {
 	idStr := c.Params("id")
-	objectID, err := primitive.ObjectIDFromHex(idStr)
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).Render("error", fiber.Map{
-			"Error": "Invalid post ID format",
-		})
-	}
+	// id, err := domain.IDFromHex(idStr)
+	// if err != nil {
+	// 	return c.Status(fiber.StatusBadRequest).Render("error", fiber.Map{
+	// 		"Error": "Invalid post ID format",
+	// 	})
+	// }
 
-	if err := h.service.Delete(c.Context(), objectID); err != nil {
+	if err := h.service.Delete(c.Context(), idStr); err != nil {
 		if errors.Is(err, data_errors.ErrPostNotFound) {
 			return c.Status(fiber.StatusNotFound).SendString("Post not found")
 		}
-		return c.Status(fiber.StatusInternalServerError).SendString("Failed to delete post")
+		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("failed to delete post: %w", err).Error())
 	}
 
-	return c.SendString("Post deleted successfully")
+	return c.SendString(fmt.Errorf("post deleted successfully").Error())
 }

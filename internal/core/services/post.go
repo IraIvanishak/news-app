@@ -5,7 +5,6 @@ import (
 
 	"github.com/IraIvanishak/news-app/internal/core/domain"
 	"github.com/IraIvanishak/news-app/internal/core/ports"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type PostService struct {
@@ -24,7 +23,7 @@ func (s *PostService) Store(ctx context.Context, m *domain.Post) error {
 	return s.repo.Store(ctx, m)
 }
 
-func (s *PostService) Find(ctx context.Context, id primitive.ObjectID) (*domain.Post, error) {
+func (s *PostService) Find(ctx context.Context, id string) (*domain.Post, error) {
 	return s.repo.Find(ctx, id)
 }
 
@@ -40,6 +39,6 @@ func (s *PostService) Update(ctx context.Context, m *domain.Post) error {
 	return s.repo.Update(ctx, m)
 }
 
-func (s *PostService) Delete(ctx context.Context, id primitive.ObjectID) error {
+func (s *PostService) Delete(ctx context.Context, id string) error {
 	return s.repo.Delete(ctx, id)
 }

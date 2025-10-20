@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/IraIvanishak/news-app/internal/core/domain"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -21,18 +20,18 @@ type PostHandlers interface {
 
 type PostService interface {
 	Store(context.Context, *domain.Post) error
-	Find(context.Context, primitive.ObjectID) (*domain.Post, error)
+	Find(context.Context, string) (*domain.Post, error)
 	List(context.Context, domain.ListFilter) ([]*domain.Post, error)
 	Count(context.Context) (int64, error)
 	Update(context.Context, *domain.Post) error
-	Delete(context.Context, primitive.ObjectID) error
+	Delete(context.Context, string) error
 }
 
 type PostRepository interface {
 	Store(context.Context, *domain.Post) error
-	Find(context.Context, primitive.ObjectID) (*domain.Post, error)
+	Find(context.Context, string) (*domain.Post, error)
 	List(context.Context, domain.ListFilter) ([]*domain.Post, error)
 	Count(context.Context) (int64, error)
 	Update(context.Context, *domain.Post) error
-	Delete(context.Context, primitive.ObjectID) error
+	Delete(context.Context, string) error
 }

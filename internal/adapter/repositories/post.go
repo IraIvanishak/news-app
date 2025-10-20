@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -12,6 +11,7 @@ import (
 
 	data_errors "github.com/IraIvanishak/news-app/internal/adapter/http/errors"
 	"github.com/IraIvanishak/news-app/internal/core/domain"
+	"github.com/IraIvanishak/news-app/internal/core/ports"
 )
 
 type PostRepository struct {
@@ -24,8 +24,10 @@ func NewPostRepository(db *mongo.Database) *PostRepository {
 	}
 }
 
+var _ ports.PostRepository = (*PostRepository)(nil)
+
 func (r *PostRepository) Store(ctx context.Context, post *domain.Post) error {
-	post.ID = primitive.NewObjectID()
+	post.ID = primitive.NewObjectID().Hex()
 	post.CreatedAt = time.Now()
 	post.UpdatedAt = time.Now()
 
@@ -33,10 +35,9 @@ func (r *PostRepository) Store(ctx context.Context, post *domain.Post) error {
 	return err
 }
 
-func (r *PostRepository) Find(ctx context.Context, id primitive.ObjectID) (*domain.Post, error) {
+func (r *PostRepository) Find(ctx context.Context, id string) (*domain.Post, error) {
 	var post domain.Post
-	err := r.collection.FindOne(ctx, bson.M{"_id": id}).Decode(&post)
-	if err != nil {
+	if err := r.collection.FindOne(ctx, bson.M{"_id": id}).Decode(&post); err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, data_errors.ErrPostNotFound
 		}
@@ -70,21 +71,15 @@ func (r *PostRepository) Count(ctx context.Context) (int64, error) {
 }
 
 func (r *PostRepository) Update(ctx context.Context, post *domain.Post) error {
-	if post.ID == primitive.NilObjectID {
-		return errors.New("post ID is required for update")
-	}
-
 	post.UpdatedAt = time.Now()
 
-	update := bson.M{
+	result, err := r.collection.UpdateByID(ctx, post.ID, bson.M{
 		"$set": bson.M{
 			"title":     post.Title,
 			"content":   post.Content,
-			"updatedat": post.UpdatedAt,
+			"updatedAt": post.UpdatedAt,
 		},
-	}
-
-	result, err := r.collection.UpdateByID(ctx, post.ID, update)
+	})
 	if err != nil {
 		return err
 	}
@@ -96,7 +91,7 @@ func (r *PostRepository) Update(ctx context.Context, post *domain.Post) error {
 	return nil
 }
 
-func (r *PostRepository) Delete(ctx context.Context, id primitive.ObjectID) error {
+func (r *PostRepository) Delete(ctx context.Context, id string) error {
 	result, err := r.collection.DeleteOne(ctx, bson.M{"_id": id})
 	if err != nil {
 		return err

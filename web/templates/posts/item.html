@@ -16,14 +16,14 @@
     <div class="flex justify-between items-center">
         <div class="space-x-2">
              <button 
-                 hx-get="/posts/{{.ID.Hex}}/edit"
+                 hx-get="/posts/{{.ID}}/edit"
                  hx-target="#content"
                  class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition-colors"
              >
                  Edit
              </button>
              <button 
-                 hx-delete="/posts/{{.ID.Hex}}"
+                 hx-delete="/posts/{{.ID}}"
                  hx-confirm="Are you sure you want to delete this post?"
                  hx-target="#content"
                  hx-swap="innerHTML"

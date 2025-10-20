@@ -71,10 +71,8 @@ func TestPostRepository_Store(t *testing.T) {
 	repo := repositories.NewPostRepository(testDB)
 
 	post := &domain.Post{
-		Title:     "Test Post",
-		Content:   "This is a test post content",
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		Title:   "Test Post",
+		Content: "This is a test post content",
 	}
 
 	ctx := context.Background()
@@ -87,10 +85,8 @@ func TestPostRepository_Find(t *testing.T) {
 	repo := repositories.NewPostRepository(testDB)
 
 	post := &domain.Post{
-		Title:     "Find Test Post",
-		Content:   "Content for finding test",
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		Title:   "Find Test Post",
+		Content: "Content for finding test",
 	}
 
 	ctx := context.Background()
@@ -219,7 +215,7 @@ func TestPostRepository_Find_NonExistent(t *testing.T) {
 	repo := repositories.NewPostRepository(testDB)
 
 	ctx := context.Background()
-	nonExistentID := primitive.NewObjectID()
+	nonExistentID := primitive.NewObjectID().Hex()
 
 	_, err := repo.Find(ctx, nonExistentID)
 	assert.Error(t, err)
@@ -230,7 +226,7 @@ func TestPostRepository_Update_NonExistent(t *testing.T) {
 
 	ctx := context.Background()
 	nonExistentPost := &domain.Post{
-		ID:        primitive.NewObjectID(),
+		ID:        primitive.NewObjectID().Hex(),
 		Title:     "Non-existent Post",
 		Content:   "This post doesn't exist",
 		UpdatedAt: time.Now(),
@@ -245,7 +241,7 @@ func TestPostRepository_Update_ZeroID(t *testing.T) {
 
 	ctx := context.Background()
 	post := &domain.Post{
-		ID:        primitive.NilObjectID,
+		ID:        primitive.NilObjectID.Hex(),
 		Title:     "Post with zero ID",
 		Content:   "This post has a zero ID",
 		UpdatedAt: time.Now(),
@@ -259,7 +255,7 @@ func TestPostRepository_Delete_NonExistent(t *testing.T) {
 	repo := repositories.NewPostRepository(testDB)
 
 	ctx := context.Background()
-	nonExistentID := primitive.NewObjectID()
+	nonExistentID := primitive.NewObjectID().Hex()
 
 	err := repo.Delete(ctx, nonExistentID)
 	assert.Error(t, err)
