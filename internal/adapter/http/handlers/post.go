@@ -26,12 +26,6 @@ func NewPostHandler(service ports.PostService) *PostHandler {
 
 func (h *PostHandler) RenderItem(c *fiber.Ctx) error {
 	idStr := c.Params("id")
-	// id, err := domain.IDFromHex(idStr)
-	// if err != nil {
-	// 	return c.Status(fiber.StatusBadRequest).Render("error", fiber.Map{
-	// 		"Error": "Invalid post ID format",
-	// 	})
-	// }
 
 	post, err := h.service.Find(c.Context(), idStr)
 	if err != nil {
@@ -79,12 +73,6 @@ func (h *PostHandler) RenderCreateForm(c *fiber.Ctx) error {
 
 func (h *PostHandler) RenderEditForm(c *fiber.Ctx) error {
 	idStr := c.Params("id")
-	// id, err := domain.IDFromHex(idStr)
-	// if err != nil {
-	// 	return c.Status(fiber.StatusBadRequest).Render("error", fiber.Map{
-	// 		"Error": "Invalid post ID format",
-	// 	})
-	// }
 
 	post, err := h.service.Find(c.Context(), idStr)
 	if err != nil {
@@ -129,12 +117,6 @@ func (h *PostHandler) Store(c *fiber.Ctx) error {
 
 func (h *PostHandler) Update(c *fiber.Ctx) error {
 	idStr := c.Params("id")
-	// id, err := domain.IDFromHex(idStr)
-	// if err != nil {
-	// 	return c.Status(fiber.StatusBadRequest).Render("error", fiber.Map{
-	// 		"Error": "Invalid post ID format",
-	// 	})
-	// }
 
 	req := post.NewUpsertPostRequest(c)
 	if err := req.Validate(); err != nil {
@@ -166,12 +148,6 @@ func (h *PostHandler) Update(c *fiber.Ctx) error {
 
 func (h *PostHandler) Delete(c *fiber.Ctx) error {
 	idStr := c.Params("id")
-	// id, err := domain.IDFromHex(idStr)
-	// if err != nil {
-	// 	return c.Status(fiber.StatusBadRequest).Render("error", fiber.Map{
-	// 		"Error": "Invalid post ID format",
-	// 	})
-	// }
 
 	if err := h.service.Delete(c.Context(), idStr); err != nil {
 		if errors.Is(err, data_errors.ErrPostNotFound) {
