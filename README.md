@@ -16,12 +16,13 @@ git clone https://github.com/IraIvanishak/news-app.git
 cd news-app
 ```
 
-2. Create a `.env` file with necessary configurations
+2. Rename `.env.example` to `.env`  
 
 3. Start the application
 ```bash
 make up
 ```
+4. go to http://localhost:8080/posts/ 
 
 
 ### Common Commands
