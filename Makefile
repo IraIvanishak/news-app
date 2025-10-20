@@ -34,7 +34,8 @@ logs:
 
 # Run tests
 test:
-	go test ./internal/adapter/repositories -v
+	go test ./internal/adapter/repositories/* -v
+	go test ./internal/adapter/http/requests/* -v 
 
 
 # Database operations

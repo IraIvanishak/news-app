@@ -105,16 +105,12 @@ func TestPostRepository_List(t *testing.T) {
 	ctx := context.Background()
 	posts := []*domain.Post{
 		{
-			Title:     "Post 1",
-			Content:   "Content 1",
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
+			Title:   "Post 1",
+			Content: "Content 1",
 		},
 		{
-			Title:     "Post 2",
-			Content:   "Content 2",
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
+			Title:   "Post 2",
+			Content: "Content 2",
 		},
 	}
 
@@ -187,16 +183,12 @@ func TestPostRepository_Count(t *testing.T) {
 
 	posts := []*domain.Post{
 		{
-			Title:     "Count Test 1",
-			Content:   "Content 1",
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
+			Title:   "Count Test 1",
+			Content: "Content 1",
 		},
 		{
-			Title:     "Count Test 2",
-			Content:   "Content 2",
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
+			Title:   "Count Test 2",
+			Content: "Content 2",
 		},
 	}
 
