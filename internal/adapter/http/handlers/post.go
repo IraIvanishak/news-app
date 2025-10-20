@@ -16,6 +16,8 @@ type PostHandler struct {
 	service ports.PostService
 }
 
+const pageSize = 3
+
 var _ ports.PostHandlers = (*PostHandler)(nil)
 
 func NewPostHandler(service ports.PostService) *PostHandler {
@@ -38,19 +40,19 @@ func (h *PostHandler) RenderItem(c *fiber.Ctx) error {
 }
 
 func (h *PostHandler) RenderList(c *fiber.Ctx) error {
-	filter := domain.NewListFilter(c.QueryInt("limit", 10), c.QueryInt("offset", 0), c.Query("q", ""))
+	filter := domain.NewListFilter(c.QueryInt("limit", pageSize), c.QueryInt("offset", 0), c.Query("q", ""))
 
 	posts, err := h.service.List(c.Context(), filter)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).Render("error", fiber.Map{
-			"Error": fmt.Errorf("failed to retrieve posts: %w", err).Error(),
+			"Error": fmt.Errorf("Failed to retrieve posts: %w", err).Error(),
 		})
 	}
 
 	totalCount, err := h.service.Count(c.Context())
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).Render("error", fiber.Map{
-			"Error": fmt.Errorf("failed to retrieve post count: %w", err).Error(),
+			"Error": fmt.Errorf("Failed to retrieve post count: %w", err).Error(),
 		})
 	}
 
@@ -84,7 +86,7 @@ func (h *PostHandler) RenderEditForm(c *fiber.Ctx) error {
 			})
 		}
 		return c.Status(fiber.StatusInternalServerError).Render("error", fiber.Map{
-			"Error": fmt.Errorf("failed to retrieve post: %w", err).Error(),
+			"Error": fmt.Errorf("Failed to retrieve post: %w", err).Error(),
 		})
 	}
 
@@ -110,7 +112,7 @@ func (h *PostHandler) Store(c *fiber.Ctx) error {
 
 	if err := h.service.Store(c.Context(), postModel); err != nil {
 		return c.Status(fiber.StatusInternalServerError).Render("error", fiber.Map{
-			"Error": fmt.Errorf("failed to create post: %w", err).Error(),
+			"Error": fmt.Errorf("Failed to create post: %w", err).Error(),
 		})
 	}
 
@@ -141,7 +143,7 @@ func (h *PostHandler) Update(c *fiber.Ctx) error {
 			})
 		}
 		return c.Status(fiber.StatusInternalServerError).Render("error", fiber.Map{
-			"Error": fmt.Errorf("failed to update post: %w", err).Error(),
+			"Error": fmt.Errorf("Failed to update post: %w", err).Error(),
 		})
 	}
 
@@ -155,8 +157,8 @@ func (h *PostHandler) Delete(c *fiber.Ctx) error {
 		if errors.Is(err, data_errors.ErrPostNotFound) {
 			return c.Status(fiber.StatusNotFound).SendString("Post not found")
 		}
-		return c.Status(fiber.StatusInternalServerError).SendString(fmt.Errorf("failed to delete post: %w", err).Error())
+		return c.Status(fiber.StatusInternalServerError).SendString("Failed to delete post")
 	}
 
-	return c.SendString(fmt.Errorf("post deleted successfully").Error())
+	return c.SendString("Post deleted successfully")
 }

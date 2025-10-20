@@ -89,31 +89,31 @@
             </div>
 
             <!-- Pagination -->
-            <div class="flex justify-between items-center mt-4">
-                {{if .HasPrevious}}
-                    <button 
-                        hx-get="/posts?limit={{.Limit}}&offset={{.PrevOffset}}&q={{.Query}}"
-                        hx-target="#content"
-                        class="bg-blue-500 text-white px-4 py-2 rounded"
-                    >
-                        Previous
-                    </button>
-                {{else}}
-                    <div></div>
-                {{end}}
-
-                {{if .HasNext}}
-                    <button 
-                        hx-get="/posts?limit={{.Limit}}&offset={{.NextOffset}}&q={{.Query}}"
-                        hx-target="#content"
-                        class="bg-blue-500 text-white px-4 py-2 rounded"
-                    >
-                        Next
-                    </button>
-                {{end}}
+            <div class="flex justify-between items-center mt-6 pt-4 border-t border-gray-200">
+                <div class="flex items-center space-x-4">
+                    {{if .HasPrevious}}
+                        <button 
+                            hx-get="/posts?limit={{.Limit}}&offset={{.PrevOffset}}&q={{.Query}}"
+                            hx-target="#content"
+                            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+                        >
+                            Previous
+                        </button>
+                    {{end}}
+                    
+                    {{if .HasNext}}
+                        <button 
+                            hx-get="/posts?limit={{.Limit}}&offset={{.NextOffset}}&q={{.Query}}"
+                            hx-target="#content"
+                            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+                        >
+                            Next
+                        </button>
+                    {{end}}
+                </div>
 
                 <!-- Pagination Info -->
-                <div class="text-gray-600">
+                <div class="text-gray-600 text-sm">
                     Showing {{len .Posts}} of {{.TotalCount}} posts
                 </div>
             </div>
