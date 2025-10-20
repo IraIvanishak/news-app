@@ -52,7 +52,16 @@ func (r *PostRepository) List(ctx context.Context, filter domain.ListFilter) ([]
 		SetLimit(filter.Limit).
 		SetSort(bson.D{{Key: "createdAt", Value: -1}})
 
-	cursor, err := r.collection.Find(ctx, bson.D{}, findOptions)
+	query := bson.D{}
+	if filter.Query != "" {
+		// Case-insensitive search in title or content
+		query = bson.D{{Key: "$or", Value: bson.A{
+			bson.D{{Key: "title", Value: bson.D{{Key: "$regex", Value: filter.Query}, {Key: "$options", Value: "i"}}}},
+			bson.D{{Key: "content", Value: bson.D{{Key: "$regex", Value: filter.Query}, {Key: "$options", Value: "i"}}}},
+		}}}
+	}
+
+	cursor, err := r.collection.Find(ctx, query, findOptions)
 	if err != nil {
 		return nil, err
 	}

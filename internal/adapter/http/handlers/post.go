@@ -38,7 +38,7 @@ func (h *PostHandler) RenderItem(c *fiber.Ctx) error {
 }
 
 func (h *PostHandler) RenderList(c *fiber.Ctx) error {
-	filter := domain.NewListFilter(c.QueryInt("limit", 10), c.QueryInt("offset", 0))
+	filter := domain.NewListFilter(c.QueryInt("limit", 10), c.QueryInt("offset", 0), c.Query("q", ""))
 
 	posts, err := h.service.List(c.Context(), filter)
 	if err != nil {
@@ -58,9 +58,11 @@ func (h *PostHandler) RenderList(c *fiber.Ctx) error {
 	renderData := struct {
 		Posts []*domain.Post
 		domain.Pagination
+		Query string
 	}{
 		Posts:      posts,
 		Pagination: pagination,
+		Query:      filter.Query,
 	}
 	return c.Render("posts/list", renderData)
 }

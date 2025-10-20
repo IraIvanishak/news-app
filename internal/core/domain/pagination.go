@@ -3,12 +3,14 @@ package domain
 type ListFilter struct {
 	Limit  int64 `json:"limit"`
 	Offset int64 `json:"offset"`
+    Query  string `json:"query"`
 }
 
-func NewListFilter(limit int, offset int) ListFilter {
+func NewListFilter(limit int, offset int, query string) ListFilter {
 	return ListFilter{
 		Limit:  int64(limit),
 		Offset: int64(offset),
+        Query:  query,
 	}
 }
 

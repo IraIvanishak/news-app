@@ -24,6 +24,10 @@
         <!-- Posts Container -->
         <div id="content">
             <h1 class="text-3xl font-bold mb-4">News Posts</h1>
+            <form class="mb-4 flex items-center space-x-2" hx-get="/posts" hx-target="#content" hx-swap="innerHTML">
+                <input type="text" name="q" value="{{.Query}}" placeholder="Search..." class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Search</button>
+            </form>
             
             <!-- New Post Button -->
             <button 
@@ -88,7 +92,7 @@
             <div class="flex justify-between items-center mt-4">
                 {{if .HasPrevious}}
                     <button 
-                        hx-get="/posts?limit={{.Limit}}&offset={{.PrevOffset}}"
+                        hx-get="/posts?limit={{.Limit}}&offset={{.PrevOffset}}&q={{.Query}}"
                         hx-target="#content"
                         class="bg-blue-500 text-white px-4 py-2 rounded"
                     >
@@ -100,7 +104,7 @@
 
                 {{if .HasNext}}
                     <button 
-                        hx-get="/posts?limit={{.Limit}}&offset={{.NextOffset}}"
+                        hx-get="/posts?limit={{.Limit}}&offset={{.NextOffset}}&q={{.Query}}"
                         hx-target="#content"
                         class="bg-blue-500 text-white px-4 py-2 rounded"
                     >
