@@ -3,8 +3,6 @@
 ## Prerequisites
 
 - Docker
-- Docker Compose
-- Go 1.22+
 
 ## Quick Start
 
@@ -25,15 +23,6 @@ make up
 4. go to http://localhost:8080/posts/ 
 
 
-### Common Commands
-
-- Start application: `make up`
-- Stop application: `make down`
-- Rebuild: `make rebuild`
-- Run tests: `make test`
-- View logs: `make logs`
-- Access MongoDB CLI: `make mongo-cli`
-
 ### Testing
 
 Run repository tests:
@@ -41,26 +30,12 @@ Run repository tests:
 make test
 ```
 
-### Database
-
-Access MongoDB shell:
-```bash
-make mongo-cli
-```
-
-## Environment Configuration
-
-Ensure `.env` file includes:
-- `PUBLIC_PORT`
-- `LISTEN_PORT`
-- Other necessary environment variables
-
 ## Troubleshooting
 
 - Ensure Docker is running
-- Check Docker Compose version compatibility
 - Verify `.env` file configuration
 
-## License
+## Demo
+<img width="851" height="571" alt="image" src="https://github.com/user-attachments/assets/7884fc3f-106f-4fbd-a67c-964a3531974e" />
+<img width="851" height="652" alt="image" src="https://github.com/user-attachments/assets/c4675d4b-b753-43c1-b980-895b43b593fc" />
 
-[Your License Here]
