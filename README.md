@@ -37,5 +37,5 @@ make test
 
 ## Demo
 <img width="851" height="571" alt="image" src="https://github.com/user-attachments/assets/7884fc3f-106f-4fbd-a67c-964a3531974e" />
-<img width="851" height="652" alt="image" src="https://github.com/user-attachments/assets/c4675d4b-b753-43c1-b980-895b43b593fc" />
+<img width="851" height="750" alt="image" src="https://github.com/user-attachments/assets/b32e96b2-bbba-4563-a4f4-64df59e61ca0" />
 
