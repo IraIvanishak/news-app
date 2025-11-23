@@ -20,15 +20,58 @@
         </div>
         <div>
             <label for="post-content" class="block text-sm font-medium text-gray-700">Content</label>
-             <textarea 
-                 name="content" 
+             <textarea
+                 name="content"
                  id="post-content"
-                 placeholder="Enter post content" 
+                 placeholder="Enter post content"
                  required
                  rows="4"
                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
              ></textarea>
         </div>
+
+        <!-- Photo Selection Section -->
+        <div class="border-t pt-4 mt-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Article Photo (Optional)</label>
+
+            <!-- Search Input -->
+            <div class="flex space-x-2 mb-4">
+                <input
+                    type="text"
+                    id="photo-search-input"
+                    placeholder="Search Unsplash photos..."
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded-md"
+                >
+                <button
+                    type="button"
+                    id="search-photos-btn"
+                    class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                >
+                    Search Photos
+                </button>
+            </div>
+
+            <!-- Photo Grid -->
+            <div id="photo-grid" class="grid grid-cols-3 gap-3 mb-4 hidden">
+                <!-- Photos will be inserted here via JavaScript -->
+            </div>
+
+            <!-- Selected Photo Preview -->
+            <div id="selected-photo-preview" class="hidden bg-gray-50 p-3 rounded border">
+                <p class="text-sm text-gray-600 mb-2">Selected photo:</p>
+                <img id="preview-image" src="" alt="" class="w-32 h-32 object-cover rounded mb-2">
+                <p id="preview-attribution" class="text-xs text-gray-500"></p>
+                <button type="button" id="remove-photo-btn" class="text-red-500 text-sm mt-2">Remove photo</button>
+            </div>
+
+            <!-- Hidden form fields for photo metadata -->
+            <input type="hidden" name="photoUrl" id="photo-url">
+            <input type="hidden" name="photographerName" id="photographer-name">
+            <input type="hidden" name="photographerUrl" id="photographer-url">
+            <input type="hidden" name="unsplashPhotoId" id="unsplash-photo-id">
+            <input type="hidden" name="downloadLocation" id="download-location">
+        </div>
+
          <div class="flex space-x-2">
              <button 
                  type="submit" 
@@ -48,3 +91,60 @@
          </div>
     </form>
 </div>
+
+<script>
+// JavaScript for photo search and selection
+document.getElementById('search-photos-btn').addEventListener('click', async () => {
+    const query = document.getElementById('photo-search-input').value;
+    if (!query) {
+        alert('Please enter a search term');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/photos/search?q=${encodeURIComponent(query)}`);
+        if (!response.ok) {
+            throw new Error('Failed to search photos');
+        }
+        const data = await response.json();
+
+        if (!data.photos || data.photos.length === 0) {
+            alert('No photos found');
+            return;
+        }
+
+        const grid = document.getElementById('photo-grid');
+        grid.innerHTML = data.photos.map(photo => `
+            <div class="cursor-pointer hover:opacity-75 border rounded overflow-hidden" onclick='selectPhoto(${JSON.stringify(photo)})'>
+                <img src="${photo.thumbUrl}" alt="${photo.description}" class="w-full h-24 object-cover">
+            </div>
+        `).join('');
+        grid.classList.remove('hidden');
+    } catch (error) {
+        console.error('Error searching photos:', error);
+        alert('Failed to search photos. Please try again.');
+    }
+});
+
+function selectPhoto(photo) {
+    document.getElementById('photo-url').value = photo.regularUrl;
+    document.getElementById('photographer-name').value = photo.photographer;
+    document.getElementById('photographer-url').value = photo.photographerUrl;
+    document.getElementById('unsplash-photo-id').value = photo.id;
+    document.getElementById('download-location').value = photo.downloadLocation;
+
+    document.getElementById('preview-image').src = photo.regularUrl;
+    document.getElementById('preview-attribution').innerHTML = `Photo by <a href="${photo.photographerUrl}" target="_blank" class="underline">${photo.photographer}</a> on Unsplash`;
+    document.getElementById('selected-photo-preview').classList.remove('hidden');
+    document.getElementById('photo-grid').classList.add('hidden');
+}
+
+document.getElementById('remove-photo-btn').addEventListener('click', () => {
+    document.getElementById('photo-url').value = '';
+    document.getElementById('photographer-name').value = '';
+    document.getElementById('photographer-url').value = '';
+    document.getElementById('unsplash-photo-id').value = '';
+    document.getElementById('download-location').value = '';
+    document.getElementById('selected-photo-preview').classList.add('hidden');
+});
+</script>

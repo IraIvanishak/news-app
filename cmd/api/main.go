@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/IraIvanishak/news-app/internal/adapter/external/unsplash"
 	"github.com/IraIvanishak/news-app/internal/adapter/http/handlers"
 	"github.com/IraIvanishak/news-app/internal/adapter/http/middlewares"
 	"github.com/IraIvanishak/news-app/internal/adapter/http/routes"
@@ -141,10 +142,19 @@ func main() {
 			return client.Database(viper.GetString("MONGO_DATABASE"))
 		}),
 
+		// Unsplash integration
+		fx.Provide(
+			func() *unsplash.Client {
+				return unsplash.NewUnsplashClient()
+			},
+		),
+
 		fx.Provide(
 			fx.Annotate(repositories.NewPostRepository, fx.As(new(ports.PostRepository))),
 			fx.Annotate(services.NewPostService, fx.As(new(ports.PostService))),
+			fx.Annotate(services.NewUnsplashService, fx.As(new(ports.UnsplashService))),
 			fx.Annotate(handlers.NewPostHandler, fx.As(new(ports.PostHandlers))),
+			handlers.NewUnsplashHandler,
 		),
 		fx.Invoke(routes.PostRoutes),
 

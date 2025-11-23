@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -10,19 +11,22 @@ import (
 	"github.com/IraIvanishak/news-app/internal/core/domain"
 	"github.com/IraIvanishak/news-app/internal/core/ports"
 	"github.com/gofiber/fiber/v2"
+	"github.com/spf13/viper"
 )
 
 type PostHandler struct {
-	service ports.PostService
+	service         ports.PostService
+	unsplashService ports.UnsplashService
 }
 
 const pageSize = 3
 
 var _ ports.PostHandlers = (*PostHandler)(nil)
 
-func NewPostHandler(service ports.PostService) *PostHandler {
+func NewPostHandler(service ports.PostService, unsplashService ports.UnsplashService) *PostHandler {
 	return &PostHandler{
-		service: service,
+		service:         service,
+		unsplashService: unsplashService,
 	}
 }
 
@@ -36,7 +40,18 @@ func (h *PostHandler) RenderItem(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Render("posts/item", post)
+	// Pass post and additional context for photo attribution
+	return c.Render("posts/item", fiber.Map{
+		"ID":               post.ID,
+		"Title":            post.Title,
+		"Content":          post.Content,
+		"CreatedAt":        post.CreatedAt,
+		"UpdatedAt":        post.UpdatedAt,
+		"PhotoURL":         post.PhotoURL,
+		"PhotographerName": post.PhotographerName,
+		"PhotographerURL":  post.PhotographerURL,
+		"UnsplashAppName":  viper.GetString("UNSPLASH_APP_NAME"),
+	})
 }
 
 func (h *PostHandler) RenderList(c *fiber.Ctx) error {
@@ -91,9 +106,13 @@ func (h *PostHandler) RenderEditForm(c *fiber.Ctx) error {
 	}
 
 	return c.Render("posts/edit", fiber.Map{
-		"ID":      post.ID,
-		"Title":   post.Title,
-		"Content": post.Content,
+		"ID":               post.ID,
+		"Title":            post.Title,
+		"Content":          post.Content,
+		"PhotoURL":         post.PhotoURL,
+		"PhotographerName": post.PhotographerName,
+		"PhotographerURL":  post.PhotographerURL,
+		"UnsplashAppName":  viper.GetString("UNSPLASH_APP_NAME"),
 	})
 }
 
@@ -106,8 +125,18 @@ func (h *PostHandler) Store(c *fiber.Ctx) error {
 	}
 
 	postModel := &domain.Post{
-		Title:   req.Title,
-		Content: req.Content,
+		Title:             req.Title,
+		Content:           req.Content,
+		PhotoURL:          req.PhotoURL,
+		PhotoAttribution:  req.PhotoAttribution,
+		PhotographerName:  req.PhotographerName,
+		PhotographerURL:   req.PhotographerURL,
+		UnsplashPhotoID:   req.UnsplashPhotoID,
+	}
+
+	// Trigger download tracking if photo selected
+	if req.DownloadLocation != "" {
+		go h.unsplashService.TriggerDownload(context.Background(), req.DownloadLocation)
 	}
 
 	if err := h.service.Store(c.Context(), postModel); err != nil {
@@ -130,10 +159,20 @@ func (h *PostHandler) Update(c *fiber.Ctx) error {
 	}
 
 	postModel := &domain.Post{
-		ID:        idStr,
-		Title:     req.Title,
-		Content:   req.Content,
-		UpdatedAt: time.Now(),
+		ID:                idStr,
+		Title:             req.Title,
+		Content:           req.Content,
+		PhotoURL:          req.PhotoURL,
+		PhotoAttribution:  req.PhotoAttribution,
+		PhotographerName:  req.PhotographerName,
+		PhotographerURL:   req.PhotographerURL,
+		UnsplashPhotoID:   req.UnsplashPhotoID,
+		UpdatedAt:         time.Now(),
+	}
+
+	// Trigger download tracking if photo selected
+	if req.DownloadLocation != "" {
+		go h.unsplashService.TriggerDownload(context.Background(), req.DownloadLocation)
 	}
 
 	if err := h.service.Update(c.Context(), postModel); err != nil {
