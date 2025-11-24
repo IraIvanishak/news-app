@@ -40,12 +40,16 @@
             <!-- Posts List -->
             <div id="posts-list">
                 {{range .Posts}}
-                    <div 
-                        id="post-{{.ID}}" 
+                    <div
+                        id="post-{{.ID}}"
                         class="bg-white shadow-md rounded-lg p-4 mb-4 flex justify-between items-center"
                     >
                         <div class="flex-1 min-w-0 mr-4">
-                            <h2 
+                            {{if .PhotoURL}}
+                            <img src="{{.PhotoURL}}" alt="{{.Title}}" class="w-full h-32 object-cover rounded mb-2">
+                            {{end}}
+
+                            <h2
                                 class="text-xl font-semibold cursor-pointer hover:text-blue-600 transition-colors truncate"
                                 hx-get="/posts/{{.ID}}"
                                 hx-target="#content"

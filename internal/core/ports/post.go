@@ -35,3 +35,21 @@ type PostRepository interface {
 	Update(context.Context, *domain.Post) error
 	Delete(context.Context, string) error
 }
+
+// UnsplashService defines the interface for Unsplash photo operations
+type UnsplashService interface {
+	SearchPhotos(ctx context.Context, query string) ([]UnsplashPhoto, error)
+	TriggerDownload(ctx context.Context, downloadURL string) error
+}
+
+// UnsplashPhoto represents a photo from Unsplash API
+type UnsplashPhoto struct {
+	ID               string
+	RegularURL       string
+	SmallURL         string
+	ThumbURL         string
+	Description      string
+	PhotographerName string
+	PhotographerURL  string
+	DownloadLocation string
+}

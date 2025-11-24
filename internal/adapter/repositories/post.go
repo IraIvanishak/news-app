@@ -84,9 +84,14 @@ func (r *PostRepository) Update(ctx context.Context, post *domain.Post) error {
 
 	result, err := r.collection.UpdateByID(ctx, post.ID, bson.M{
 		"$set": bson.M{
-			"title":     post.Title,
-			"content":   post.Content,
-			"updatedAt": post.UpdatedAt,
+			"title":             post.Title,
+			"content":           post.Content,
+			"updatedAt":         post.UpdatedAt,
+			"photourl":          post.PhotoURL,
+			"photoattribution":  post.PhotoAttribution,
+			"photographername":  post.PhotographerName,
+			"photographerurl":   post.PhotographerURL,
+			"unsplashphotoid":   post.UnsplashPhotoID,
 		},
 	})
 	if err != nil {
